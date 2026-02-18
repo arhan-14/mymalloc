@@ -1,3 +1,6 @@
+#include "mymalloc.h"
+#include <stdlib.h>
+
 # define MEMLENGTH 4096
 static union {
 	char bytes [MEMLENGTH];
