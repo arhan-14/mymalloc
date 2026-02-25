@@ -1,4 +1,5 @@
 #include "mymalloc.h"
+#include <stdio.h>
 
 typedef struct TestObject TestObject{
     void *ptr;
