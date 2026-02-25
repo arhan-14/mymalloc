@@ -5,7 +5,7 @@
 
 void task1(void)
 {
-    for (int i = 0; i < 120; i++)
+    for (int i = 0; i < 50; i++)
     {
         void *obj = mymalloc(1, __FILE__, __LINE__);
         myfree(obj, __FILE__, __LINE__);
@@ -14,13 +14,16 @@ void task1(void)
 
 void task2(void)
 {
-    void *objects[120];
-    for (int i = 0; i < 120; i++)
+    void *objects[50];
+    for (int i = 0; i < 50; i++)
     {
         void *obj = mymalloc(1, __FILE__, __LINE__);
-        objects[i] = obj;
+        if (obj != NULL)
+        {
+            objects[i] = obj;
+        }
     }
-    for (int i = 0; i < 120; i++)
+    for (int i = 0; i < 50; i++)
     {
         myfree(objects[i], __FILE__, __LINE__);   
     } 
@@ -28,18 +31,23 @@ void task2(void)
 
 void task3(void)
 {
-    void *objects[120];
+    void *objects[50];
     int totalallocs = 0;
     int activeallocs = 0;
-    while (totalallocs < 120)
+    while (totalallocs < 50)
     {
         int random_number = rand() % 2;
         if (random_number == 0)
         {
-            void *obj = mymalloc(1, __FILE__, __LINE__);
-            objects[activeallocs] = obj;
-            totalallocs++;
-            activeallocs++;
+            if (activeallocs < 50)
+            {
+                void *obj = mymalloc(1, __FILE__, __LINE__);
+                if (obj != NULL)
+                {
+                    objects[activeallocs++] = obj;
+                    totalallocs++;
+                }
+            }
         }
         else
         {
@@ -57,6 +65,12 @@ void task3(void)
     {
         myfree(objects[i], __FILE__, __LINE__);
     }
+
+}
+
+void task4()
+{
+    
 }
 
 int main(int argc, char** argv)
