@@ -132,16 +132,17 @@ void myfree(void *ptr, char *file, int line){
 		return;
 	}
 
-	header *next = temp->next;
+    temp->isAlloc = 0;
+
+	header *prev = temp->prev;
+    if(prev !=NULL && !(prev->isAlloc)){
+        temp = coalesceChunks(prev, temp);
+    }
+    
+    header *next = temp->next;
 	if(next != NULL && !(next->isAlloc)){
 		temp = coalesceChunks(temp, next);
 	}
 	
-	header *prev = temp->prev;
-	if(prev !=NULL && !(prev->isAlloc)){
-		temp = coalesceChunks(prev, temp);
-	}
-
-	temp->isAlloc = 0;
 }
 
