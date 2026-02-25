@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #ifndef _MYMALLOC_H
 #define _MYMALLOC_H
 

@@ -1,13 +1,14 @@
-#include "mymalloc.h"
 #include <sys/time.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include "mymalloc.h"
 
 void task1(void)
 {
     for (int i = 0; i < 120; i++)
     {
         void *obj = mymalloc(1, __FILE__, __LINE__);
-        myfree(obj);
+        myfree(obj, __FILE__, __LINE__);
     }
 }
 

@@ -1,11 +1,14 @@
-#include "mymalloc.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-typedef struct TestObject TestObject{
+#include "mymalloc.h"
+
+typedef struct TestObject{
     void *ptr;
     size_t size;
     char pattern;
-};
+} TestObject;
 
 int main(int argc, char** argv)
 {
@@ -35,6 +38,10 @@ int main(int argc, char** argv)
             }
         }
     }
+
+    myfree(obj1, __FILE__, __LINE__);
+    myfree(obj2, __FILE__, __LINE__);
+    myfree(obj3, __FILE__, __LINE__);
     
     printf("mallocationtest completed successfully!"); 
     return 0;

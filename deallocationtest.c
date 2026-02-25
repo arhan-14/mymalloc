@@ -13,6 +13,8 @@ int main(int argc, char** argv)
         printf("Error with myfree()\n");
         return 1;
     }
+    
+    myfree(obj2, __FILE__, __LINE__);
 
     printf("deallocation test was successful");
     return 0;
