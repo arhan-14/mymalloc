@@ -19,7 +19,7 @@ typedef struct TreeNode {
 
 void task1(void)
 {
-    for (int i = 0; i < 50; i++)
+    for (int i = 0; i < 120; i++)
     {
         void *obj = mymalloc(1, __FILE__, __LINE__);
         myfree(obj, __FILE__, __LINE__);
@@ -28,8 +28,8 @@ void task1(void)
 
 void task2(void)
 {
-    void *objects[50];
-    for (int i = 0; i < 50; i++)
+    void *objects[120];
+    for (int i = 0; i < 120; i++)
     {
         void *obj = mymalloc(1, __FILE__, __LINE__);
         if (obj != NULL)
@@ -37,7 +37,7 @@ void task2(void)
             objects[i] = obj;
         }
     }
-    for (int i = 0; i < 50; i++)
+    for (int i = 0; i < 120; i++)
     {
         myfree(objects[i], __FILE__, __LINE__);   
     } 
@@ -45,15 +45,15 @@ void task2(void)
 
 void task3(void)
 {
-    void *objects[50];
+    void *objects[120];
     int totalallocs = 0;
     int activeallocs = 0;
-    while (totalallocs < 50)
+    while (totalallocs < 120)
     {
         int random_number = rand() % 2;
         if (random_number == 0)
         {
-            if (activeallocs < 50)
+            if (activeallocs < 120)
             {
                 void *obj = mymalloc(1, __FILE__, __LINE__);
                 if (obj != NULL)
