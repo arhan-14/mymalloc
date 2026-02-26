@@ -12,43 +12,41 @@ static union {
 typedef struct block_header  {
 	int isAlloc;
 	size_t size;
-	struct block_header * next;
-	struct block_header * prev;
 } header;
 
 static int isInit = 0;
 
+static header *getNext(header *ptr){
+	size_t offset = ptr->size + sizeof(header);
+	char *temp = (char *)ptr + offset;
+	if(temp >= (char *)heap.bytes + MEMLENGTH){
+		return NULL;
+	}
+	return (header *)temp;
+}
+
 static void splitBlock(header * ptr, size_t size){
+	size_t oldTotalSize = ptr->size;
 	char *temp = (char *)(ptr+1) + size;
 	header *next = (header *) temp;
-	next->size = ptr->size - (size + sizeof(header));
+	next->size = oldTotalSize - (size + sizeof(header));
 	ptr->size = size;
 	next->isAlloc = 0;
-	next->prev = ptr;
-	if(ptr->next != NULL){
-		header *oldNext = ptr->next;
-		oldNext->prev = next;
-		next->next = oldNext;
-	}
-	else {
-		next->next = NULL;
-	}
-	ptr->next = next;
 }
 
 static void leakDetectorFunction(){
 	header *ptr = (header *)heap.bytes;
-	int byteCount = 0;
-	int objectCount = 0;
+	size_t byteCount = 0;
+	size_t objectCount = 0;
 	while ( ptr != NULL ){
 		if (ptr->isAlloc) {
 			objectCount++;
 			byteCount += ptr->size;
 		}
-		ptr = ptr->next;
+		ptr = getNext(ptr);
 	}
 	if(objectCount){
-		fprintf(stderr, "mymalloc: %d bytes leaked in %d objects\n", byteCount, objectCount);
+		fprintf(stderr, "mymalloc: %zu bytes leaked in %zu objects\n", byteCount, objectCount);
 	}
 }
 
@@ -56,19 +54,12 @@ static void initHeap(){
 	header *initial = (header *) heap.bytes;
 	initial->isAlloc = 0;
 	initial->size = MEMLENGTH - sizeof(header);
-	initial->next = NULL;
-	initial->prev = NULL;
 	isInit = 1;
 	atexit(leakDetectorFunction);
 }
 
 static header *coalesceChunks(header *one,  header *two){
 	one->size = one->size + sizeof(header) + two->size;
-	one->next = two->next;
-	if(one->next!=NULL){
-		header	*tempNext = one->next;
-		tempNext->prev = one;
-	}
 	return one;
 }
 
@@ -91,7 +82,7 @@ void *mymalloc(size_t size, char *file, int line){
 			ptr->isAlloc = 1;
 			return ptr+1;
 		}
-		ptr = ptr->next;
+		ptr = getNext(ptr);
 	}
 	fprintf(stderr, "malloc: Unable to allocate %zu bytes (%s:%d)\n", size, file, line);
 	return NULL;
@@ -113,33 +104,34 @@ void myfree(void *ptr, char *file, int line){
 
 	if((void *)temp < heap_start || (void *)temp >= heap_end){
 		fprintf(stderr, "free: Inappropriate pointer (%s:%d)\n", file, line);
-		return;
+		exit(2);
 	}
 
 	header *check = (header *)heap.bytes;
+	header *prev = NULL;
 
 	while( check != temp && check != NULL){
-		check = check->next;
+		prev = check;
+		check = getNext(check);
 	}
 
 	if(check == NULL){
 		fprintf(stderr, "free: Inappropriate pointer (%s:%d)\n", file, line);
-		return;
+		exit(2);
 	}
 
 	if(!(temp->isAlloc)){
 		fprintf(stderr, "free: Inappropriate pointer (%s:%d)\n", file, line);
-		return;
+		exit(2);
 	}
 
     temp->isAlloc = 0;
 
-	header *prev = temp->prev;
-    if(prev !=NULL && !(prev->isAlloc)){
+    if(prev != NULL && !(prev->isAlloc)){
         temp = coalesceChunks(prev, temp);
     }
     
-    header *next = temp->next;
+    header *next = getNext(temp);
 	if(next != NULL && !(next->isAlloc)){
 		temp = coalesceChunks(temp, next);
 	}
